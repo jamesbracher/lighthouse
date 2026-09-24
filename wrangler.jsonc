@@ -1,0 +1,9 @@
+{
+  // Cloudflare Workers config: serve the built site as static assets only
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "lighthouse",
+  "compatibility_date": "2025-06-01",
+  "assets": {
+    "directory": "./dist"
+  }
+}

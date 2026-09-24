@@ -1,0 +1,14 @@
+{
+  "name": "lighthouse",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A tiny text adventure set in a lighthouse",
+  "scripts": {
+    "build": "tsc && mkdir -p dist && cp index.html game.js dist/",
+    "deploy": "npm run build && wrangler deploy"
+  },
+  "devDependencies": {
+    "typescript": "^7.0.2",
+    "wrangler": "^4.137.0"
+  }
+}
