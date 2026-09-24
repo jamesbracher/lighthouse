@@ -20,10 +20,8 @@ interface Lock {
   message: string;
 }
 
-/** Rooms that stay shut until another room has been visited */
-const locks: Partial<Record<RoomId, Lock>> = {
-  lamp: { requires: "kitchen", message: "The lamp room door is locked." },
-};
+/** Rooms that stay shut until another room has been visited. None at present. */
+const locks: Partial<Record<RoomId, Lock>> = {};
 
 export function initialState(): GameState {
   return { room: startRoom, visited: [startRoom] };
