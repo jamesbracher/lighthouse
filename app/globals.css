@@ -201,3 +201,38 @@ body {
 .keys .key { transition: opacity 0.4s ease; }
 .keys .key.off { opacity: 0.2; }
   
+
+/* Isometric lighthouse panel. Shares .scene for size, border and strokes. */
+.tower .hit {
+  fill: transparent;
+  stroke: transparent;
+  stroke-width: 2;
+  cursor: not-allowed;
+  outline: none;
+  transition: stroke 0.2s ease;
+}
+.tower .hit.reachable { cursor: pointer; }
+.tower .hit.reachable:hover,
+.tower .hit.reachable:focus-visible {
+  stroke: var(--accent);
+  stroke-dasharray: 4 4;
+}
+.tower .hit.here { cursor: default; }
+.tower .pin { transition: transform 0.6s ease; }
+.tower .pin path {
+  fill: var(--accent);
+  stroke: var(--ink);
+  stroke-width: 1.6;
+}
+.tower .pin circle {
+  fill: var(--scene-bg);
+  stroke: none;
+}
+.tower .pin .shadow {
+  fill: none;
+  stroke: var(--ink);
+  opacity: 0.5;
+}
+@media (prefers-reduced-motion: reduce) {
+  .tower .pin, .tower .hit { transition: none; }
+}
