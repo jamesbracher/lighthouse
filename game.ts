@@ -100,9 +100,11 @@ function buildMap(): void {
   map.replaceChildren();
   for (const row of grid) {
     for (const id of row) {
-      const cell = document.createElement("div");
+      const cell = document.createElement("button");
+      cell.type = "button";
       cell.dataset.room = id;
       cell.textContent = rooms[id].short;
+      cell.addEventListener("click", () => goTo(id));
       map.appendChild(cell);
     }
   }
@@ -114,8 +116,12 @@ function render(message = ""): void {
   byId("room").textContent = room.name;
   byId("mood").textContent = room.mood;
 
-  for (const cell of document.querySelectorAll<HTMLElement>("#map div")) {
-    cell.classList.toggle("here", cell.dataset.room === current);
+  const reachable = new Set(Object.values(room.exits));
+  for (const cell of document.querySelectorAll<HTMLButtonElement>("#map button")) {
+    const id = cell.dataset.room ?? "";
+    cell.classList.toggle("here", id === current);
+    cell.classList.toggle("reachable", reachable.has(id));
+    cell.disabled = id === current;
   }
   byId("description").textContent = room.description;
 
@@ -142,7 +148,21 @@ function move(dir: Direction): void {
     render(room.blocked[dir] ?? "You can't go that way.");
     return;
   }
+  travel(next);
+}
 
+/** Map click: only rooms with a direct exit from here are reachable */
+function goTo(id: string): void {
+  if (moving || id === current) return;
+  const room = rooms[current];
+  if (!Object.values(room.exits).includes(id)) {
+    render(`There's no direct way to the ${rooms[id].name} from here.`);
+    return;
+  }
+  travel(id);
+}
+
+function travel(next: string): void {
   // Fade the view out, swap the room, then let it fade back in
   moving = true;
   const view = byId("view");
