@@ -1,6 +1,7 @@
 export type Direction = "north" | "south" | "east" | "west";
 
-export type RoomId = "stair" | "lamp" | "kitchen" | "rocks";
+/** Room ids come from the database, so any string is possible */
+export type RoomId = string;
 
 export interface Room {
   id: RoomId;
