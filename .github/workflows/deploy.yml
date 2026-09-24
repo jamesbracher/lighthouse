@@ -57,8 +57,18 @@ jobs:
           cache: npm
       - run: npm ci
 
+      - name: Generate Cloudflare env types
+        run: npm run cf-typegen
+
       - name: Build with OpenNext
         run: npx opennextjs-cloudflare build
+
+      - name: Apply D1 migrations
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: d1 migrations apply lighthouse --remote
 
       - name: Deploy with wrangler
         uses: cloudflare/wrangler-action@v3
