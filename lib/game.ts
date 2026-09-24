@@ -1,7 +1,10 @@
-import { isReachable, rooms, startRoom, type Direction, type RoomId } from "./rooms.ts";
+import { isReachable, type Direction, type RoomId } from "./rooms.ts";
+import type { World } from "./world.ts";
 
 /** Everything the game needs to remember. Plain data, no browser. */
 export interface GameState {
+  /** the rooms being played, loaded from the database */
+  readonly world: World;
   readonly room: RoomId;
   readonly visited: readonly RoomId[];
 }
@@ -25,8 +28,8 @@ const locks: Partial<Record<RoomId, Lock>> = {
   lamp: { requires: "kitchen", message: "The lamp room door is locked." },
 };
 
-export function initialState(): GameState {
-  return { room: startRoom, visited: [startRoom] };
+export function initialState(world: World): GameState {
+  return { world, room: world.start, visited: [world.start] };
 }
 
 function stay(state: GameState, message: string): MoveResult {
@@ -37,12 +40,12 @@ function enter(state: GameState, next: RoomId): MoveResult {
   const lock = locks[next];
   if (lock && !state.visited.includes(lock.requires)) return stay(state, lock.message);
   const visited = state.visited.includes(next) ? state.visited : [...state.visited, next];
-  return { state: { room: next, visited }, moved: true, message: "" };
+  return { state: { ...state, room: next, visited }, moved: true, message: "" };
 }
 
 /** Arrow-key movement in a compass direction */
 export function move(state: GameState, dir: Direction): MoveResult {
-  const room = rooms[state.room];
+  const room = state.world.rooms[state.room];
   const next = room.exits[dir];
   if (!next) return stay(state, room.blocked[dir] ?? "You can't go that way.");
   return enter(state, next);
@@ -51,6 +54,7 @@ export function move(state: GameState, dir: Direction): MoveResult {
 /** Map click: only rooms with a direct exit from here are reachable */
 export function goTo(state: GameState, id: RoomId): MoveResult {
   if (id === state.room) return stay(state, "");
+  const { rooms } = state.world;
   if (!isReachable(rooms[state.room], id)) {
     return stay(state, `There's no direct way to the ${rooms[id].name} from here.`);
   }

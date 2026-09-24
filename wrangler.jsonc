@@ -11,5 +11,13 @@
   },
   "services": [
     { "binding": "WORKER_SELF_REFERENCE", "service": "lighthouse" }
+  ],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "lighthouse",
+      "database_id": "REPLACE_WITH_ID_FROM_wrangler_d1_create",
+      "migrations_dir": "migrations"
+    }
   ]
 }

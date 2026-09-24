@@ -1,7 +1,9 @@
-import { isReachable, rooms, type Room, type RoomId } from "@/lib/rooms";
+import { isReachable, type Room, type RoomId } from "@/lib/rooms";
 import { pinFor, TOWER_VIEWBOX } from "@/lib/tower";
+import type { World } from "@/lib/world";
 
 interface Props {
+  world: World;
   /** the room the player is in */
   current: Room;
   /** the room the pin should point at (the destination while travelling) */
@@ -21,7 +23,7 @@ const hitAreas: Record<RoomId, string> = {
  * Isometric, hand-drawn lighthouse with a pin beside the room the player is in.
  * Shares the #rough filter and .scene stroke style with the room scenes.
  */
-export default function Tower({ current, pinRoom, onSelect }: Props) {
+export default function Tower({ world, current, pinRoom, onSelect }: Props) {
   const pin = pinFor(pinRoom);
   const { width, height } = TOWER_VIEWBOX;
 
@@ -75,7 +77,9 @@ export default function Tower({ current, pinRoom, onSelect }: Props) {
         <circle cx="160" cy="6" r="3" />
 
         {/* clickable rooms */}
-        {(Object.keys(hitAreas) as RoomId[]).map((id) => {
+        {Object.keys(hitAreas).map((id) => {
+          const room = world.rooms[id];
+          if (!room) return null;
           const here = id === current.id;
           const reachable = isReachable(current, id);
           const className = ["hit", here && "here", reachable && "reachable"]
@@ -88,7 +92,7 @@ export default function Tower({ current, pinRoom, onSelect }: Props) {
               d={hitAreas[id]}
               role="button"
               tabIndex={here ? -1 : 0}
-              aria-label={here ? `${rooms[id].name}, you are here` : `Go to the ${rooms[id].name}`}
+              aria-label={here ? `${room.name}, you are here` : `Go to the ${room.name}`}
               aria-disabled={here || undefined}
               onClick={() => onSelect(id)}
               onKeyDown={(e) => {

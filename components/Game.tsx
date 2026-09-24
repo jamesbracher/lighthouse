@@ -1,29 +1,23 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import {
-  FADE_MS,
-  keyToDirection,
-  rooms,
-  startRoom,
-  type Direction,
-  type RoomId,
-} from "@/lib/rooms";
+import { FADE_MS, keyToDirection, type Direction, type RoomId } from "@/lib/rooms";
 import { goTo, initialState, move, type GameState, type MoveResult } from "@/lib/game";
+import type { World } from "@/lib/world";
 import Keys from "./Keys";
 import Map from "./Map";
 import RoughFilter from "./RoughFilter";
 import Scene from "./Scene";
 import Tower from "./Tower";
 
-export default function Game() {
-  const [state, setState] = useState<GameState>(initialState);
+export default function Game({ world }: { world: World }) {
+  const [state, setState] = useState<GameState>(() => initialState(world));
   const [fading, setFading] = useState(false);
   const [message, setMessage] = useState("");
-  const [pinRoom, setPinRoom] = useState<RoomId>(startRoom);
+  const [pinRoom, setPinRoom] = useState<RoomId>(world.start);
   const timer = useRef<number | null>(null);
 
-  const room = rooms[state.room];
+  const room = state.world.rooms[state.room];
 
   // The current room's palette lives on <body> so the whole page recolours
   useEffect(() => {
@@ -79,7 +73,7 @@ export default function Game() {
       <RoughFilter />
       <main className="panel">
         <h1 className="eyebrow">The Lighthouse</h1>
-        <Map current={room} onSelect={onSelect} />
+        <Map world={state.world} current={room} onSelect={onSelect} />
 
         <section className={fading ? "view fading" : "view"}>
           <h2 className="room-name">{room.name}</h2>
@@ -87,7 +81,7 @@ export default function Game() {
           <Scene room={state.room} />
         </section>
 
-        <Tower current={room} pinRoom={pinRoom} onSelect={onSelect} />
+        <Tower world={state.world} current={room} pinRoom={pinRoom} onSelect={onSelect} />
 
         <section className={fading ? "view fading" : "view"}>
           <p className="description">{room.description}</p>

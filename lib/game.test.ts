@@ -1,9 +1,14 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { initialState, move } from "./game.ts";
+import { roomsFromMigrations } from "./test-db.ts";
+import { buildWorld } from "./world.ts";
+
+// Play against the real rooms, as created by the migration
+const world = buildWorld(roomsFromMigrations());
 
 test("the Lamp Room door stays locked until the Keeper's Kitchen is visited", () => {
-  let state = initialState();
+  let state = initialState(world);
   assert.equal(state.room, "rocks", "the game starts on the Rocks");
 
   // At the start, up from the Rocks goes nowhere

@@ -4,7 +4,7 @@ import type { RoomId } from "@/lib/rooms";
 /* Hand-drawn room scenes, carried over from prototype/index.html.
    All share the #rough filter defined in RoughFilter.tsx. */
 
-const scenes: Record<RoomId, ReactElement> = {
+const scenes: Partial<Record<RoomId, ReactElement>> = {
   stair: (
     <svg className="scene" viewBox="0 0 320 180" role="img" aria-label="A spiral staircase inside a stone shaft">
       <g filter="url(#rough)">
@@ -107,6 +107,7 @@ const scenes: Record<RoomId, ReactElement> = {
   ),
 };
 
+/** The drawing for a room, or nothing for a room that has none yet */
 export default function Scene({ room }: { room: RoomId }) {
-  return scenes[room];
+  return scenes[room] ?? null;
 }
