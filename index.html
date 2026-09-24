@@ -184,7 +184,26 @@
       margin-top: 20px;
       font-size: 14px;
       color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 14px;
     }
+    /* Arrow-key sketch, same hand-drawn line as the scenes */
+    .keys {
+      flex: none;
+      width: 84px;
+      height: auto;
+    }
+    .keys rect,
+    .keys path {
+      fill: none;
+      stroke: var(--muted);
+      stroke-width: 2.2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .keys rect { fill: var(--scene-bg); }
+    .keys .glow { stroke: var(--accent); }
   </style>
 </head>
 <body>
@@ -341,7 +360,21 @@
     </section>
 
     <p id="message"></p>
-    <footer>Use the arrow keys to move, or click a room on the map.</footer>
+    <footer>
+      <svg class="keys" viewBox="-3 -3 102 70" aria-hidden="true">
+        <g filter="url(#rough)">
+          <rect x="34" y="2" width="28" height="28" rx="5"/>
+          <path class="glow" d="M48 23 L48 10 M42 16 L48 10 L54 16"/>
+          <rect x="2" y="34" width="28" height="28" rx="5"/>
+          <path class="glow" d="M23 48 L10 48 M16 42 L10 48 L16 54"/>
+          <rect x="34" y="34" width="28" height="28" rx="5"/>
+          <path class="glow" d="M48 41 L48 54 M42 48 L48 54 L54 48"/>
+          <rect x="66" y="34" width="28" height="28" rx="5"/>
+          <path class="glow" d="M73 48 L86 48 M80 42 L86 48 L80 54"/>
+        </g>
+      </svg>
+      <span>Use the arrow keys to move, or click a room on the map.</span>
+    </footer>
   </main>
   <script src="game.js"></script>
 </body>
