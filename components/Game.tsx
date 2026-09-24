@@ -1,75 +1,62 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import {
-  FADE_MS,
-  isReachable,
-  keyToDirection,
-  rooms,
-  startRoom,
-  type Direction,
-  type RoomId,
-} from "@/lib/rooms";
+import { FADE_MS, keyToDirection, rooms, type Direction, type RoomId } from "@/lib/rooms";
+import { goTo, initialState, move, type GameState, type MoveResult } from "@/lib/game";
 import Keys from "./Keys";
 import Map from "./Map";
 import RoughFilter from "./RoughFilter";
 import Scene from "./Scene";
 
 export default function Game() {
-  const [current, setCurrent] = useState<RoomId>(startRoom);
+  const [state, setState] = useState<GameState>(initialState);
   const [fading, setFading] = useState(false);
   const [message, setMessage] = useState("");
   const timer = useRef<number | null>(null);
 
-  const room = rooms[current];
+  const room = rooms[state.room];
 
   // The current room's palette lives on <body> so the whole page recolours
   useEffect(() => {
-    document.body.dataset.room = current;
-  }, [current]);
+    document.body.dataset.room = state.room;
+  }, [state.room]);
 
-  // Fade the view out, swap the room, then let it fade back in
-  const travel = useCallback((next: RoomId) => {
-    setFading(true);
-    setMessage("");
-    timer.current = window.setTimeout(() => {
-      setCurrent(next);
-      setFading(false);
-      timer.current = null;
-    }, FADE_MS);
-  }, []);
-
-  const move = useCallback(
-    (dir: Direction) => {
+  // Apply a rules result: fade to the new room, or show why we stayed put
+  const apply = useCallback(
+    (result: MoveResult) => {
       if (fading) return;
-      const next = room.exits[dir];
-      if (next) travel(next);
-      else setMessage(room.blocked[dir] ?? "You can't go that way.");
+      if (!result.moved) {
+        setMessage(result.message);
+        return;
+      }
+      setFading(true);
+      setMessage("");
+      timer.current = window.setTimeout(() => {
+        setState(result.state);
+        setFading(false);
+        timer.current = null;
+      }, FADE_MS);
     },
-    [fading, room, travel],
+    [fading],
   );
 
-  // Map click: only rooms with a direct exit from here are reachable
-  const goTo = useCallback(
-    (id: RoomId) => {
-      if (fading || id === current) return;
-      if (isReachable(room, id)) travel(id);
-      else setMessage(`There's no direct way to the ${rooms[id].name} from here.`);
-    },
-    [current, fading, room, travel],
-  );
-
-  useEffect(() => {
-    const onKey = (event: KeyboardEvent) => {
-      const dir = keyToDirection[event.key];
+  const onKey = useCallback(
+    (event: KeyboardEvent) => {
+      const dir: Direction | undefined = keyToDirection[event.key];
       if (dir) {
         event.preventDefault();
-        move(dir);
+        apply(move(state, dir));
       }
-    };
+    },
+    [apply, state],
+  );
+
+  const onSelect = useCallback((id: RoomId) => apply(goTo(state, id)), [apply, state]);
+
+  useEffect(() => {
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
-  }, [move]);
+  }, [onKey]);
 
   useEffect(() => {
     return () => {
@@ -82,12 +69,12 @@ export default function Game() {
       <RoughFilter />
       <main className="panel">
         <h1 className="eyebrow">The Lighthouse</h1>
-        <Map current={room} onSelect={goTo} />
+        <Map current={room} onSelect={onSelect} />
 
         <section className={fading ? "view fading" : "view"}>
           <h2 className="room-name">{room.name}</h2>
           <p className="mood">{room.mood}</p>
-          <Scene room={current} />
+          <Scene room={state.room} />
           <p className="description">{room.description}</p>
           <p className="exits">
             You can go:{" "}
