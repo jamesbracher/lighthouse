@@ -13,13 +13,21 @@ read -rp  "Cloudflare account ID: " CLOUDFLARE_ACCOUNT_ID
 CLOUDFLARE_API_TOKEN="$(printf '%s' "$CLOUDFLARE_API_TOKEN" | tr -d '[:space:]')"
 CLOUDFLARE_ACCOUNT_ID="$(printf '%s' "$CLOUDFLARE_ACCOUNT_ID" | tr -d '[:space:]')"
 
-# Check the token with Cloudflare before storing it
+# Check the token with Cloudflare before storing it.
+# User tokens verify at /user/tokens/verify; account-owned tokens only at
+# /accounts/<id>/tokens/verify, so try both.
 echo "Checking token with Cloudflare..."
-if ! curl -sSf -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
-      https://api.cloudflare.com/client/v4/user/tokens/verify \
-      | grep -q '"status":"active"'; then
-  echo "Cloudflare rejected that token. Use an API token (My Profile > API Tokens > Create Token," >&2
-  echo "'Edit Cloudflare Workers' template), not the Global API Key. Nothing was stored." >&2
+verify() {
+  curl -s -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" "$1"
+}
+RESULT="$(verify https://api.cloudflare.com/client/v4/user/tokens/verify)"
+if ! grep -q '"status":"active"' <<<"$RESULT"; then
+  RESULT="$(verify "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/tokens/verify")"
+fi
+if ! grep -q '"status":"active"' <<<"$RESULT"; then
+  echo "Cloudflare rejected that token. Its reply was:" >&2
+  echo "  $RESULT" >&2
+  echo "Copy the long token value again (not its name) and paste it once. Nothing was stored." >&2
   exit 1
 fi
 echo "Token is valid."
