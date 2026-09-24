@@ -1,17 +1,26 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { FADE_MS, keyToDirection, rooms, type Direction, type RoomId } from "@/lib/rooms";
+import {
+  FADE_MS,
+  keyToDirection,
+  rooms,
+  startRoom,
+  type Direction,
+  type RoomId,
+} from "@/lib/rooms";
 import { goTo, initialState, move, type GameState, type MoveResult } from "@/lib/game";
 import Keys from "./Keys";
 import Map from "./Map";
 import RoughFilter from "./RoughFilter";
 import Scene from "./Scene";
+import Tower from "./Tower";
 
 export default function Game() {
   const [state, setState] = useState<GameState>(initialState);
   const [fading, setFading] = useState(false);
   const [message, setMessage] = useState("");
+  const [pinRoom, setPinRoom] = useState<RoomId>(startRoom);
   const timer = useRef<number | null>(null);
 
   const room = rooms[state.room];
@@ -31,6 +40,7 @@ export default function Game() {
       }
       setFading(true);
       setMessage("");
+      setPinRoom(result.state.room);
       timer.current = window.setTimeout(() => {
         setState(result.state);
         setFading(false);
@@ -75,6 +85,11 @@ export default function Game() {
           <h2 className="room-name">{room.name}</h2>
           <p className="mood">{room.mood}</p>
           <Scene room={state.room} />
+        </section>
+
+        <Tower current={room} pinRoom={pinRoom} onSelect={onSelect} />
+
+        <section className={fading ? "view fading" : "view"}>
           <p className="description">{room.description}</p>
           <p className="exits">
             You can go:{" "}
