@@ -204,6 +204,8 @@
     }
     .keys rect { fill: var(--scene-bg); }
     .keys .glow { stroke: var(--accent); }
+    .keys .key { transition: opacity 0.4s ease; }
+    .keys .key.off { opacity: 0.2; }
   </style>
 </head>
 <body>
@@ -363,14 +365,22 @@
     <footer>
       <svg class="keys" viewBox="-3 -3 102 70" aria-hidden="true">
         <g filter="url(#rough)">
-          <rect x="34" y="2" width="28" height="28" rx="5"/>
-          <path class="glow" d="M48 23 L48 10 M42 16 L48 10 L54 16"/>
-          <rect x="2" y="34" width="28" height="28" rx="5"/>
-          <path class="glow" d="M23 48 L10 48 M16 42 L10 48 L16 54"/>
-          <rect x="34" y="34" width="28" height="28" rx="5"/>
-          <path class="glow" d="M48 41 L48 54 M42 48 L48 54 L54 48"/>
-          <rect x="66" y="34" width="28" height="28" rx="5"/>
-          <path class="glow" d="M73 48 L86 48 M80 42 L86 48 L80 54"/>
+          <g class="key" data-dir="north">
+            <rect x="34" y="2" width="28" height="28" rx="5"/>
+            <path class="glow" d="M48 23 L48 10 M42 16 L48 10 L54 16"/>
+          </g>
+          <g class="key" data-dir="west">
+            <rect x="2" y="34" width="28" height="28" rx="5"/>
+            <path class="glow" d="M23 48 L10 48 M16 42 L10 48 L16 54"/>
+          </g>
+          <g class="key" data-dir="south">
+            <rect x="34" y="34" width="28" height="28" rx="5"/>
+            <path class="glow" d="M48 41 L48 54 M42 48 L48 54 L54 48"/>
+          </g>
+          <g class="key" data-dir="east">
+            <rect x="66" y="34" width="28" height="28" rx="5"/>
+            <path class="glow" d="M73 48 L86 48 M80 42 L86 48 L80 54"/>
+          </g>
         </g>
       </svg>
       <span>Use the arrow keys to move, or click a room on the map.</span>

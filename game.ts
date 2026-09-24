@@ -125,6 +125,11 @@ function render(message = ""): void {
   }
   byId("description").textContent = room.description;
 
+  for (const key of document.querySelectorAll<SVGGElement>(".keys .key")) {
+    const dir = key.dataset.dir as Direction;
+    key.classList.toggle("off", !(dir in room.exits));
+  }
+
   for (const scene of document.querySelectorAll<SVGSVGElement>(".scene")) {
     scene.toggleAttribute("hidden", scene.id !== room.scene);
   }

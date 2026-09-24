@@ -99,6 +99,10 @@ function render(message = "") {
         cell.disabled = id === current;
     }
     byId("description").textContent = room.description;
+    for (const key of document.querySelectorAll(".keys .key")) {
+        const dir = key.dataset.dir;
+        key.classList.toggle("off", !(dir in room.exits));
+    }
     for (const scene of document.querySelectorAll(".scene")) {
         scene.toggleAttribute("hidden", scene.id !== room.scene);
     }
