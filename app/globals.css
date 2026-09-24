@@ -1,0 +1,203 @@
+/* Design carried over unchanged from prototype/index.html */
+:root {
+  --bg: #071418;
+  --panel: #0f2429;
+  --scene-bg: #0a1c20;
+  --text: #e6edf5;
+  --muted: #8a9bb0;
+  --accent: #4fc3c7;
+  --warn: #ff8a65;
+  --ink: #cfe6e8;
+}
+/* One palette per room. The current room id is set on <body>. */
+body[data-room="stair"] {
+  --bg: #15171c; --panel: #262a33; --scene-bg: #1d2129;
+  --accent: #9fb3c8; --ink: #cdd6df; --muted: #7d8794;
+}
+body[data-room="lamp"] {
+  --bg: #1a1006; --panel: #2e1f0e; --scene-bg: #22170a;
+  --accent: #ffb347; --ink: #f3d9a8; --muted: #a58a63;
+}
+body[data-room="kitchen"] {
+  --bg: #12150d; --panel: #232a1b; --scene-bg: #1a2013;
+  --accent: #b8c66a; --ink: #dfe3c9; --muted: #8b9375;
+}
+body[data-room="rocks"] {
+  --bg: #071418; --panel: #0f2429; --scene-bg: #0a1c20;
+  --accent: #4fc3c7; --ink: #cfe6e8; --muted: #7d9ba0;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  background: var(--bg);
+  color: var(--text);
+  font: 18px/1.5 Georgia, "Times New Roman", serif;
+  padding: 24px;
+  transition: background-color 0.6s ease;
+}
+.panel {
+  width: 100%;
+  max-width: 560px;
+  background: var(--panel);
+  border-radius: 12px;
+  padding: 28px 32px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  position: relative;
+  transition: background-color 0.6s ease;
+}
+/* The room view fades out, swaps, and fades back in */
+.view {
+  transition: opacity 0.25s ease;
+}
+.view.fading { opacity: 0; }
+@media (prefers-reduced-motion: reduce) {
+  body, .panel, .view, .scene { transition: none; }
+}
+/* Map: a 2x2 grid in the top-right corner */
+.map {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  display: grid;
+  grid-template-columns: repeat(2, 58px);
+  gap: 4px;
+}
+.map button {
+  all: unset;
+  box-sizing: border-box;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--muted);
+  border-radius: 4px;
+  color: var(--muted);
+  font-size: 11px;
+  font-family: ui-monospace, Menlo, monospace;
+  transition: background-color 0.4s, color 0.4s, border-color 0.4s;
+}
+.map button.reachable {
+  cursor: pointer;
+  color: var(--text);
+  border-style: solid;
+}
+.map button.reachable:hover,
+.map button.reachable:focus-visible {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.map button:not(.reachable):not(.here) {
+  cursor: not-allowed;
+  border-style: dashed;
+  opacity: 0.6;
+}
+.map .here {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--bg);
+  font-weight: bold;
+  cursor: default;
+}
+@media (max-width: 480px) {
+  .map { position: static; margin-bottom: 16px; }
+  .eyebrow, .room-name { padding-right: 0; }
+}
+.mood {
+  margin: -12px 0 16px;
+  font-size: 15px;
+  font-style: italic;
+  color: var(--muted);
+}
+.eyebrow {
+  margin: 0 0 4px;
+  font-size: 14px;
+  font-weight: normal;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding-right: 130px;
+}
+.room-name {
+  margin: 0 0 16px;
+  font-size: 34px;
+  line-height: 1.15;
+  color: var(--accent);
+  padding-right: 130px;
+}
+/* Shared sketch style for every scene */
+.scene {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin: 0 0 20px;
+  border: 1px solid var(--muted);
+  border-radius: 8px;
+  background: var(--scene-bg);
+  transition: background-color 0.6s ease;
+}
+.scene path,
+.scene line,
+.scene circle,
+.scene ellipse,
+.scene rect,
+.scene polyline {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.scene .thin { stroke-width: 1.2; opacity: 0.7; }
+.scene .glow { stroke: var(--accent); }
+.scene .solid { fill: var(--scene-bg); }
+.description { margin: 0 0 20px; }
+.exits {
+  margin: 0 0 12px;
+  color: var(--muted);
+  font-size: 16px;
+}
+.exits span {
+  color: var(--text);
+  border: 1px solid var(--muted);
+  border-radius: 4px;
+  padding: 1px 8px;
+  margin-right: 6px;
+  font-family: ui-monospace, Menlo, monospace;
+  font-size: 14px;
+}
+.message {
+  min-height: 1.5em;
+  margin: 0;
+  color: var(--warn);
+  font-style: italic;
+}
+.footer {
+  margin-top: 20px;
+  font-size: 14px;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+/* Arrow-key sketch, same hand-drawn line as the scenes */
+.keys {
+  flex: none;
+  width: 84px;
+  height: auto;
+}
+.keys rect,
+.keys path {
+  fill: none;
+  stroke: var(--muted);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.keys rect { fill: var(--scene-bg); }
+.keys .glow { stroke: var(--accent); }
+.keys .key { transition: opacity 0.4s ease; }
+.keys .key.off { opacity: 0.2; }
+  

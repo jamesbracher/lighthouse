@@ -24,7 +24,8 @@ jobs:
 
       - run: npm ci
 
-      - run: npm run build
+      - name: Build with OpenNext
+        run: npx opennextjs-cloudflare build
 
       - name: Deploy with wrangler
         uses: cloudflare/wrangler-action@v3
